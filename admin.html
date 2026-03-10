@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>OnTrac - Admin Dashboard</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="Manage OnTrac tracking settings" name="keywords">
+    <meta content="Expert-designed admin dashboard with dropdown navigation for OnTrac" name="description">
+    <!-- Favicon -->
+     <link rel="icon" type="image/png" href="favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg" />
+    <link rel="shortcut icon" href="favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png" />
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Manrope', sans-serif;
+            background: linear-gradient(135deg, #1a202c, #2d3748);
+            color: #e2e8f0;
+        }
+        .top-nav {
+            background: rgba(26, 32, 44, 0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 2rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        .nav-menu {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .nav-menu a {
+            color: #a0aec0;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        .nav-menu a:hover, .nav-menu a.active {
+            background: linear-gradient(to right, #ff4c00, #ed8936);
+            color: #ffffff;
+            transform: scale(1.05);
+        }
+        .nav-menu i {
+            margin-right: 0.5rem;
+        }
+        .hamburger {
+            display: none;
+            color: #ffffff;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(26, 32, 44, 0.95);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-direction: column;
+            padding: 1rem;
+            z-index: 999;
+        }
+        .dropdown-menu.active {
+            display: flex;
+            animation: slideDown 0.3s ease;
+        }
+        .dropdown-menu a {
+            color: #a0aec0;
+            padding: 0.75rem 1rem;
+            border-radius: 0.375rem;
+            transition: all 0.3s ease;
+        }
+        .dropdown-menu a:hover, .dropdown-menu a.active {
+            background: linear-gradient(to right, #ff4c00, #ed8936);
+            color: #ffffff;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .content {
+            padding: 6rem 2rem 2rem;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        .card {
+            background: rgba(45, 55, 72, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+        }
+        .notification {
+            position: fixed;
+            top: 5rem;
+            right: 1rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.3s ease;
+        }
+        .notification.success {
+            background: #38a169;
+            color: #ffffff;
+        }
+        .notification.error {
+            background: #e53e3e;
+            color: #ffffff;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        th, td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        th:first-child, td:first-child {
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.375rem 0 0 0.375rem;
+        }
+        th:last-child, td:last-child {
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0 0.375rem 0.375rem 0;
+        }
+        input, select, textarea {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #ff4c00;
+            box-shadow: 0 0 8px rgba(255, 76, 0, 0.3);
+        }
+        button {
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .status-pending {
+            background-color: rgba(234, 179, 8, 0.2);
+            color: #eab308;
+        }
+        .status-in-transit {
+            background-color: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+        .status-delivered {
+            background-color: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+        .timeline {
+            position: relative;
+            padding-left: 1.5rem;
+            border-left: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -0.625rem;
+            top: 0.25rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background-color: #ff4c00;
+        }
+        .timeline-content {
+            padding-left: 1rem;
+        }
+        .timeline-date {
+            font-size: 0.75rem;
+            color: #a0aec0;
+        }
+        @media (max-width: 1024px) {
+            .nav-menu {
+                display: none;
+            }
+            .hamburger {
+                display: block;
+            }
+            .content {
+                padding: 5rem 1rem 1rem;
+            }
+        }
+        @media (min-width: 1025px) {
+            .dropdown-menu {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div class="min-h-screen flex flex-col bg-gradient-to-br from-gray-800 to-gray-900" id="loginPage">
+        <!-- Login Navbar -->
+        <nav class="top-nav">
+            <div class="nav-container">
+                <h2 class="text-xl font-semibold text-white">OnTrac Admin</h2>
+                <div class="nav-menu">
+                    <a href="index.html"><i class="fas fa-home"></i> Home</a>
+                    <a href="#" class="active"><i class="fas fa-user-shield"></i> Admin</a>
+                </div>
+                <i class="fas fa-bars hamburger" onclick="toggleDropdown('dropdownMenuLogin')"></i>
+                <div class="dropdown-menu" id="dropdownMenuLogin">
+                    <a href="index.html"><i class="fas fa-home"></i> Home</a>
+                    <a href="#" class="active"><i class="fas fa-user-shield"></i> Admin</a>
+                </div>
+            </div>
+        </nav>
+        <div class="flex items-center justify-center flex-grow">
+            <div class="bg-gray-900 bg-opacity-80 backdrop-filter backdrop-blur-lg p-10 rounded-xl shadow-2xl w-full max-w-md border border-gray-700">
+                <h2 class="text-3xl font-semibold text-white mb-8 text-center">Admin Login</h2>
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                    <input type="password" id="password" class="block w-full rounded-lg shadow-sm p-3 bg-gray-800 border-gray-600 text-white focus:ring-orange-500 focus:border-orange-500 transition duration-200" placeholder="Enter password" />
+                    <p class="mt-2 text-sm text-red-500 hidden" id="loginError">Incorrect password.</p>
+                </div>
+                <button class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 px-4 rounded-lg hover:from-orange-600 hover:to-orange-700 transition duration-200 font-medium transform hover:scale-105" onclick="login()">Sign In</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div class="hidden" id="dashboard">
+        <!-- Dashboard Navbar -->
+        <nav class="top-nav">
+            <div class="nav-container">
+                <h2 class="text-xl font-semibold text-white">OnTrac Admin</h2>
+                <div class="nav-menu">
+                    <a href="index.html"><i class="fas fa-home"></i> Home</a>
+                    <a href="#" class="active" onclick="navigateToSection('tracking')"><i class="fas fa-barcode"></i> Tracking Codes</a>
+                    <a href="#" onclick="navigateToSection('generator')"><i class="fas fa-qrcode"></i> Code Generator</a>
+                    <a href="#" onclick="navigateToSection('routes')"><i class="fas fa-map-marker-alt"></i> Location Routes</a>
+                    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+                <i class="fas fa-bars hamburger" onclick="toggleDropdown('dropdownMenuDashboard')"></i>
+                <div class="dropdown-menu" id="dropdownMenuDashboard">
+                    <a href="index.html"><i class="fas fa-home"></i> Home</a>
+                    <a href="#" onclick="navigateToSection('tracking')"><i class="fas fa-barcode"></i> Tracking Codes</a>
+                    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </nav>
+        <!-- Content -->
+        <div class="content">
+            <!-- Notification -->
+            <div class="notification" id="notification"></div>
+            <!-- Tracking Codes Section -->
+            <div class="card" id="trackingSection">
+                <h3 class="text-2xl font-semibold text-white mb-6">Manage Tracking Codes</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label for="trackingId" class="block text-sm font-medium text-gray-300 mb-2">Tracking ID</label>
+                        <input type="text" id="trackingId" class="block w-full rounded-lg shadow-sm p-3 focus:ring-orange-500 focus:border-orange-500" placeholder="e.g., OT4B7N2P8XJP" />
+                    </div>
+                    <div>
+                        <button class="bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 px-6 rounded-lg hover:from-orange-600 hover:to-orange-700 font-medium" type="button" onclick="generateTrackingId()">Generate ID</button>
+                    </div>
+                    <div>
+                        <label for="receiverName" class="block text-sm font-medium text-gray-300 mb-2">Receiver Name</label>
+                        <input type="text" id="receiverName" class="block w-full rounded-lg shadow-sm p-3 focus:ring-orange-500 focus:border-orange-500" placeholder="e.g., John Doe" />
+                    </div>
+                    <div>
+                        <label for="trackingRoutes" class="block text-sm font-medium text-gray-300 mb-2">Route Locations (comma-separated, 6 steps)</label>
+                        <input type="text" id="trackingRoutes" class="block w-full rounded-lg shadow-sm p-3 focus:ring-orange-500 focus:border-orange-500" placeholder="e.g., New York Facility, Los Angeles Hub, LAX Airport, Narita Airport, Japanese Customs, Tokyo Hub" />
+                    </div>
+                    <div>
+                        <label for="country" class="block text-sm font-medium text-gray-300 mb-2">Country</label>
+                        <select id="country" class="block w-full rounded-lg shadow-sm p-3 focus:ring-orange-500 focus:border-orange-500" onchange="updateTrackingRoutes()">
+                            <option value="" disabled selected>Select a country</option>
+                            <option value="">Select Country</option>
+                            <option value="Afghanistan">Afghanistan</option>
+                            <option value="Albania">Albania</option>
+                            <option value="Algeria">Algeria</option>
+                            <option value="Andorra">Andorra</option>
+                            <option value="Angola">Angola</option>
+                            <option value="Antigua and Barbuda">Antigua and Barbuda</option>
+                            <option value="Argentina">Argentina</option>
+                            <option value="Armenia">Armenia</option>
+                            <option value="Australia">Australia</option>
+                            <option value="Austria">Austria</option>
+                            <option value="Azerbaijan">Azerbaijan</option>
+                            <option value="Bahamas">Bahamas</option>
+                            <option value="Bahrain">Bahrain</option>
+                            <option value="Bangladesh">Bangladesh</option>
+                            <option value="Barbados">Barbados</option>
+                            <option value="Belarus">Belarus</option>
+                            <option value="Belgium">Belgium</option>
+                            <option value="Belize">Belize</option>
+                            <option value="Benin">Benin</option>
+                            <option value="Bhutan">Bhutan</option>
+                            <option value="Bolivia">Bolivia</option>
+                            <option value="Bosnia and Herzegovina">Bosnia and Herzegovina</option>
+                            <option value="Botswana">Botswana</option>
+                            <option value="Brazil">Brazil</option>
+                            <option value="Brunei">Brunei</option>
+                            <option value="Bulgaria">Bulgaria</option>
+                            <option value="Burkina Faso">Burkina Faso</option>
+                            <option value="Burundi">Burundi</option>
+                            <option value="Cabo Verde">Cabo Verde</option>
+                            <option value="Cambodia">Cambodia</option>
+                            <option value="Cameroon">Cameroon</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Central African Republic">Central African Republic</option>
+                            <option value="Chad">Chad</option>
+                            <option value="Chile">Chile</option>
+                            <option value="China">China</option>
+                            <option value="Colombia">Colombia</option>
+                            <option value="Comoros">Comoros</option>
+                            <option value="Congo (Congo-Brazzaville)">Congo (Congo-Brazzaville)</option>
+                            <option value="Costa Rica">Costa Rica</option>
+                            <option value="Croatia">Croatia</option>
+                            <option value="Cuba">Cuba</option>
+                            <option value="Cyprus">Cyprus</option>
+                            <option value="Czechia (Czech Republic)">Czechia (Czech Republic)</option>
+                            <option value="Democratic Republic of the Congo">Democratic Republic of the Congo</option>
+                            <option value="Denmark">Denmark</option>
+                            <option value="Djibouti">Djibouti</option>
+                            <option value="Dominica">Dominica</option>
+                            <option value="Dominican Republic">Dominican Republic</option>
+                            <option value="Ecuador">Ecuador</option>
+                            <option value="Egypt">Egypt</option>
+                            <option value="El Salvador">El Salvador</option>
+                            <option value="Equatorial Guinea">Equatorial Guinea</option>
+                            <option value="Eritrea">Eritrea</option>
+                            <option value="Estonia">Estonia</option>
+                            <option value="Eswatini">Eswatini</option>
+                            <option value="Ethiopia">Ethiopia</option>
+                            <option value="Fiji">Fiji</option>
+                            <option value="Finland">Finland</option>
+                            <option value="France">France</option>
+                            <option value="Gabon">Gabon</option>
+                            <option value="Gambia">Gambia</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Germany">Germany</option>
+                            <option value="Ghana">Ghana</option>
+                            <option value="Greece">Greece</option>
+                            <option value="Grenada">Grenada</option>
+                            <option value="Guatemala">Guatemala</option>
+                            <option value="Guinea">Guinea</option>
+                            <option value="Guinea-Bissau">Guinea-Bissau</option>
+                            <option value="Guyana">Guyana</option>
+                            <option value="Haiti">Haiti</option>
+                            <option value="Honduras">Honduras</option>
+                            <option value="Hungary">Hungary</option>
+                            <option value="Iceland">Iceland</option>
+                            <option value="India">India</option>
+                            <option value="Indonesia">Indonesia</option>
+                            <option value="Iran">Iran</option>
+                            <option value="Iraq">Iraq</option>
+                            <option value="Ireland">Ireland</option>
+                            <option value="Israel">Israel</option>
+                            <option value="Italy">Italy</option>
+                            <option value="Jamaica">Jamaica</option>
+                            <option value="Japan">Japan</option>
+                            <option value="Jordan">Jordan</option>
+                            <option value="Kazakhstan">Kazakhstan</option>
+                            <option value="Kenya">Kenya</option>
+                            <option value="Kiribati">Kiribati</option>
+                            <option value="Kuwait">Kuwait</option>
+                            <option value="Kyrgyzstan">Kyrgyzstan</option>
+                            <option value="Laos">Laos</option>
+                            <option value="Latvia">Latvia</option>
+                            <option value="Lebanon">Lebanon</option>
+                            <option value="Lesotho">Lesotho</option>
+                            <option value="Liberia">Liberia</option>
+                            <option value="Libya">Libya</option>
+                            <option value="Liechtenstein">Liechtenstein</option>
+                            <option value="Lithuania">Lithuania</option>
+                            <option value="Luxembourg">Luxembourg</option>
+                            <option value="Madagascar">Madagascar</option>
+                            <option value="Malawi">Malawi</option>
+                            <option value="Malaysia">Malaysia</option>
+                            <option value="Maldives">Maldives</option>
+                            <option value="Mali">Mali</option>
+                            <option value="Malta">Malta</option>
+                            <option value="Marshall Islands">Marshall Islands</option>
+                            <option value="Mauritania">Mauritania</option>
+                            <option value="Mauritius">Mauritius</option>
+                            <option value="Mexico">Mexico</option>
+                            <option value="Micronesia">Micronesia</option>
+                            <option value="Moldova">Moldova</option>
+                            <option value="Monaco">Monaco</option>
+                            <option value="Mongolia">Mongolia</option>
+                            <option value="Montenegro">Montenegro</option>
+                            <option value="Morocco">Morocco</option>
+                            <option value="Mozambique">Mozambique</option>
+                            <option value="Myanmar (Burma)">Myanmar (Burma)</option>
+                            <option value="Namibia">Namibia</option>
+                            <option value="Nauru">Nauru</option>
+                            <option value="Nepal">Nepal</option>
+                            <option value="Netherlands">Netherlands</option>
+                            <option value="New Zealand">New Zealand</option>
+                            <option value="Nicaragua">Nicaragua</option>
+                            <option value="Niger">Niger</option>
+                            <option value="Nigeria">Nigeria</option>
+                            <option value="North Korea">North Korea</option>
+                            <option value="North Macedonia">North Macedonia</option>
+                            <option value="Norway">Norway</option>
+                            <option value="Oman">Oman</option>
+                            <option value="Pakistan">Pakistan</option>
+                            <option value="Palau">Palau</option>
+                            <option value="Palestine State">Palestine State</option>
+                            <option value="Panama">Panama</option>
+                            <option value="Papua New Guinea">Papua New Guinea</option>
+                            <option value="Paraguay">Paraguay</option>
+                            <option value="Peru">Peru</option>
+                            <option value="Philippines">Philippines</option>
+                            <option value="Poland">Poland</option>
+                            <option value="Portugal">Portugal</option>
+                            <option value="Qatar">Qatar</option>
+                            <option value="Romania">Romania</option>
+                            <option value="Russia">Russia</option>
+                            <option value="Rwanda">Rwanda</option>
+                            <option value="Saint Kitts and Nevis">Saint Kitts and Nevis</option>
+                            <option value="Saint Lucia">Saint Lucia</option>
+                            <option value="Saint Vincent and the Grenadines">Saint Vincent and the Grenadines</option>
+                            <option value="Samoa">Samoa</option>
+                            <option value="San Marino">San Marino</option>
+                            <option value="Sao Tome and Principe">Sao Tome and Principe</option>
+                            <option value="Saudi Arabia">Saudi Arabia</option>
+                            <option value="Senegal">Senegal</option>
+                            <option value="Serbia">Serbia</option>
+                            <option value="Seychelles">Seychelles</option>
+                            <option value="Sierra Leone">Sierra Leone</option>
+                            <option value="Singapore">Singapore</option>
+                            <option value="Slovakia">Slovakia</option>
+                            <option value="Slovenia">Slovenia</option>
+                            <option value="Solomon Islands">Solomon Islands</option>
+                            <option value="Somalia">Somalia</option>
+                            <option value="South Africa">South Africa</option>
+                            <option value="South Korea">South Korea</option>
+                            <option value="South Sudan">South Sudan</option>
+                            <option value="Spain">Spain</option>
+                            <option value="Sri Lanka">Sri Lanka</option>
+                            <option value="Sudan">Sudan</option>
+                            <option value="Suriname">Suriname</option>
+                            <option value="Sweden">Sweden</option>
+                            <option value="Switzerland">Switzerland</option>
+                            <option value="Syria">Syria</option>
+                            <option value="Tajikistan">Tajikistan</option>
+                            <option value="Tanzania">Tanzania</option>
+                            <option value="Thailand">Thailand</option>
+                            <option value="Timor-Leste">Timor-Leste</option>
+                            <option value="Togo">Togo</option>
+                            <option value="Tonga">Tonga</option>
+                            <option value="Trinidad and Tobago">Trinidad and Tobago</option>
+                            <option value="Tunisia">Tunisia</option>
+                            <option value="Turkey">Turkey</option>
+                            <option value="Turkmenistan">Turkmenistan</option>
+                            <option value="Tuvalu">Tuvalu</option>
+                            <option value="Uganda">Uganda</option>
+                            <option value="Ukraine">Ukraine</option>
+                            <option value="United Arab Emirates">United Arab Emirates</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="United States of America">United States of America</option>
+                            <option value="Uruguay">Uruguay</option>
+                            <option value="Uzbekistan">Uzbekistan</option>
+                            <option value="Vanuatu">Vanuatu</option>
+                            <option value="Vatican City">Vatican City</option>
+                            <option value="Venezuela">Venezuela</option>
+                            <option value="Vietnam">Vietnam</option>
+                            <option value="Yemen">Yemen</option>
+                            <option value="Zambia">Zambia</option>
+                            <option value="Zimbabwe">Zimbabwe</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 px-6 rounded-lg hover:from-orange-600 hover:to-orange-700 font-medium" onclick="addTracking()">Add Tracking Code</button>
+                <!-- View Details Modal -->
+                <div id="detailsModal" class="modal fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+                    <div class="modal-content bg-gray-900 bg-opacity-90 backdrop-filter backdrop-blur-lg rounded-xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                        <h2 class="text-xl font-bold mb-4 text-lg font-medium text-gray-300 mb-2">📍 Tracking Details</h2>
+                        <div id="trackingDetails"></div>
+                        <div class="mt-4 flex justify-end space-x-2">
+                            <button onclick="closeModal()" class="bg-gray-500 text-white px-4 py-2 rounded">Close</button>
+                            <button id="advanceBtn" class="bg-blue-600 text-white px-4 py-2 rounded">Advance Location</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Tracking Details Modal -->
+                <div class="mt-6">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-800 bg-opacity-50">
+                                    <th class="p-3 text-left text-sm font-semibold text-gray-300">Tracking ID</th>
+                                    <th class="p-3 text-left text-sm font-semibold text-gray-300">Receiver</th>
+                                    <th class="p-3 text-left text-sm font-semibold text-gray-300">Country</th>
+                                    <th class="p-3 text-left text-sm font-semibold text-gray-300">Status</th>
+                                    <th class="p-3 text-left text-sm font-semibold text-gray-300">Created</th>
+                                    <th class="p-3 text-right text-sm font-semibold text-gray-300">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trackingTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script>
+        function generateTrackingId() {
+            const prefix = "OT";
+            const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            let id = prefix;
+            for (let i = 0; i < 10; i++) {
+                id += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById("trackingId").value = id;
+        }
+
+        function showNotification(message, type) {
+            const notification = document.getElementById("notification");
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.style.display = "block";
+            setTimeout(() => notification.style.display = "none", 3000);
+        }
+
+        function toggleDropdown(menuId) {
+            const dropdown = document.getElementById(menuId);
+            dropdown.classList.toggle("active");
+        }
+
+        function navigateToSection(section) {
+            document.querySelectorAll(".card").forEach(card => card.classList.add("hidden"));
+            const targetSection = document.getElementById(`${section}Section`);
+            targetSection.classList.remove("hidden");
+            document.querySelectorAll(".nav-menu a, .dropdown-menu a").forEach(a => a.classList.remove("active"));
+            document.querySelectorAll(`.nav-menu a[onclick="navigateToSection('${section}')"], .dropdown-menu a[onclick="navigateToSection('${section}')"]`).forEach(a => a.classList.add("active"));
+            targetSection.scrollIntoView({ behavior: "smooth" });
+            if (window.innerWidth <= 1024) toggleDropdown("dropdownMenuDashboard");
+        }
+
+        function login() {
+            const password = document.getElementById("password").value;
+            const loginError = document.getElementById("loginError");
+            if (password === "1234") {
+                document.getElementById("loginPage").style.display = "none";
+                document.getElementById("dashboard").style.display = "block";
+                renderTrackingTable();
+                updateTrackingRoutes();
+                updateGenerateRoutes();
+            } else {
+                loginError.classList.remove("hidden");
+            }
+        }
+
+        function logout() {
+            document.getElementById("loginPage").style.display = "flex";
+            document.getElementById("dashboard").style.display = "none";
+            document.getElementById("password").value = "";
+            document.getElementById("loginError").classList.add("hidden");
+            document.getElementById("dropdownMenuDashboard").classList.remove("active");
+        }
+    </script>
+    <!-- Firebase + App Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getDatabase, ref, set, update, remove, onValue, get } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBuZ-gK14gYN3Azvf4GjqeOTtZpkOrTcm4",
+  authDomain: "ontraclogistics-9e26b.firebaseapp.com",
+  databaseURL: "https://ontraclogistics-9e26b-default-rtdb.firebaseio.com",
+  projectId: "ontraclogistics-9e26b",
+  storageBucket: "ontraclogistics-9e26b.firebasestorage.app",
+  messagingSenderId: "738320367918",
+  appId: "1:738320367918:web:1fa480561a2a29b8eababf",
+  measurementId: "G-7LQXTM0T0P"
+};
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        let trackingData = {};
+
+        // Notifications
+        function showNotification(msg, type="info") {
+            const box = document.getElementById("notification");
+            box.innerText = msg;
+            box.className = "fixed bottom-5 right-5 px-4 py-3 rounded shadow-lg text-white";
+            box.classList.add(type==="success" ? "bg-green-600" : type==="error" ? "bg-red-600" : "bg-gray-900");
+            box.style.display = "block";
+            setTimeout(() => box.style.display="none", 3000);
+        }
+
+        // Live Sync
+        const shipmentsRef = ref(db, "shipments");
+        onValue(shipmentsRef, (snapshot) => {
+            trackingData = snapshot.val() || {};
+            renderTrackingTable();
+        });
+
+        // Add Tracking
+        function addTracking() {
+            const trackingId = document.getElementById("trackingId").value.trim().toUpperCase();
+            const receiverName = document.getElementById("receiverName").value.trim();
+            const routes = document.getElementById("trackingRoutes").value.trim();
+            const country = document.getElementById("country").value;
+
+            if (!trackingId || !receiverName || !routes || !country) {
+                showNotification("Please fill all fields.", "error");
+                return;
+            }
+
+            if (!trackingId.startsWith("OT") || trackingId.length !== 12) {
+                showNotification("Tracking ID must start with 'OT' and be 12 characters long.", "error");
+                return;
+            }
+
+            const routeArray = routes.split(",").map(r => r.trim()).filter(r => r);
+            if (routeArray.length !== 6) {
+                showNotification("Exactly 6 route locations are required.", "error");
+                return;
+            }
+
+            const now = Date.now();
+            set(ref(db, "shipments/" + trackingId), {
+                trackingId,
+                receiverName,
+                country,
+                routes: routeArray,
+                currentStep: 0,
+                createdAt: now,
+                timeline: [{
+                    location: routeArray[0],
+                    timestamp: now,
+                    status: "Package Received",
+                    timeZone: "UTC"
+                }]
+            }).then(() => {
+                showNotification("Tracking code added successfully.", "success");
+                document.getElementById("trackingId").value = "";
+                document.getElementById("receiverName").value = "";
+                document.getElementById("trackingRoutes").value = "";
+                document.getElementById("country").value = "";
+            }).catch(() => showNotification("Error adding tracking code.", "error"));
+        }
+
+        // Delete Tracking
+        function deleteTracking(id) {
+            remove(ref(db, "shipments/" + id))
+                .then(() => showNotification("Tracking code deleted successfully.", "success"))
+                .catch(() => showNotification("Error deleting tracking code.", "error"));
+        }
+
+        // Advance Tracking
+        function advanceTrackingLocation(id) {
+            const tracking = trackingData[id];
+            if (!tracking || tracking.currentStep >= tracking.routes.length - 1) return;
+
+            const newStep = tracking.currentStep + 1;
+            const newLocation = tracking.routes[newStep];
+            const now = Date.now();
+
+            const updatedTimeline = tracking.timeline ? [...tracking.timeline] : [];
+            updatedTimeline.push({
+                location: newLocation,
+                timestamp: now,
+                status: newStep === tracking.routes.length - 1 ? "Delivered" : "In Transit",
+                timeZone: "UTC"
+            });
+
+            update(ref(db, "shipments/" + id), {
+                currentStep: newStep,
+                timeline: updatedTimeline
+            }).then(() => {
+                showNotification(`Package ${id} advanced to ${newLocation}`, "success");
+                viewTrackingDetails(id);
+            }).catch(() => showNotification("Error advancing tracking.", "error"));
+        }
+
+        // Render Table
+        function renderTrackingTable() {
+            const tbody = document.getElementById("trackingTable");
+            tbody.innerHTML = "";
+            for (const id in trackingData) {
+                const { country, createdAt, receiverName, currentStep, routes } = trackingData[id];
+                const status = currentStep === routes.length - 1 ? "Delivered" :
+                            currentStep > 0 ? "In Transit" : "Pending";
+
+                const statusClass = status === "Delivered" ? "status-delivered" :
+                                    status === "In Transit" ? "status-in-transit" : "status-pending";
+
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td class="p-3 text-gray-400">${id}</td>
+                    <td class="p-3">${receiverName}</td>
+                    <td class="p-3">${country}</td>
+                    <td class="p-3"><span class="status-badge ${statusClass}">${status}</span></td>
+                    <td class="p-3">${new Date(createdAt).toLocaleString()}</td>
+                    <td class="p-3 text-right space-x-2">
+                        <button class="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-600" onclick="viewTrackingDetails('${id}')">View</button>
+                        <button class="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-600" onclick="deleteTracking('${id}')">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+
+        // View Details
+        async function viewTrackingDetails(id) {
+            const snapshot = await get(ref(db, "shipments/" + id));
+            if (!snapshot.exists()) return;
+
+            const tracking = snapshot.val();
+            let html = `<p><strong>Tracking ID:</strong> ${tracking.trackingId}</p>
+                        <p><strong>Receiver:</strong> ${tracking.receiverName}</p>
+                        <p><strong>Country:</strong> ${tracking.country}</p>
+                        <h3 class="mt-3 font-semibold">Timeline:</h3>`;
+
+            tracking.timeline.forEach(entry => {
+                html += `<div class="border p-2 my-1 rounded">
+                            <p><strong>${entry.status}</strong> - ${entry.location}</p>
+                            <p class="text-sm text-gray-600">${new Date(entry.timestamp).toLocaleString()} (${entry.timeZone})</p>
+                        </div>`;
+            });
+
+            document.getElementById("trackingDetails").innerHTML = html;
+            document.getElementById("advanceBtn").onclick = () => advanceTrackingLocation(id);
+            document.getElementById("detailsModal").style.display = "block";
+        }
+
+        function closeModal() {
+            document.getElementById("detailsModal").style.display = "none";
+        }
+
+        // Expose functions
+        window.addTracking = addTracking;
+        window.deleteTracking = deleteTracking;
+        window.viewTrackingDetails = viewTrackingDetails;
+        window.advanceTrackingLocation = advanceTrackingLocation;
+        window.closeModal = closeModal;
+    </script>
+</body>
+</html>
